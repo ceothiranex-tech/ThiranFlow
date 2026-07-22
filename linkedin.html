@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThiranFlow by Thirenex - Daily LinkedIn</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .submission-card { max-width: 600px; margin: 0 auto; }
+        .status-banner { padding: 15px; border-radius: 6px; margin-bottom: 20px; text-align: center; font-weight: bold; }
+        .status-pending { background-color: var(--warning); color: #000; }
+        .status-submitted { background-color: var(--success); color: #fff; }
+    </style>
+    <link rel="icon" type="image/png" href="fav.png">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand" style="padding: 15px 0; text-align: center;"><img src="logo.png" alt="ThiranFlow Logo" style="max-width: 100%; max-height: 60px;"></div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="tasks.html">Tasks</a></li>
+                <li><a href="linkedin.html" class="active">Daily LinkedIn</a></li>
+                <li class="admin-only d-none"><a href="users.html">Team Members</a></li>
+                <li class="admin-only d-none"><a href="reports.html">Reports</a></li>
+                <li><a href="profile.html">My Profile</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div><span style="font-weight: 500; font-size: 1.1rem;">Daily LinkedIn Post</span></div>
+                <div class="header-right">
+                    <div style="text-align: right; line-height: 1.2;">
+                        <strong id="header-user-name">Loading...</strong><br>
+                        <small id="header-user-role" class="text-muted"></small>
+                    </div>
+                    <button class="btn btn-secondary" id="logout-btn">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- User View -->
+                <div id="user-view" class="card submission-card d-none">
+                    <h3 style="margin-bottom: 20px;">Today's Submission</h3>
+                    <div id="submission-status" class="status-banner status-pending">Status: Checking...</div>
+                    
+                    <form id="linkedin-form">
+                        <div class="form-group">
+                            <label>LinkedIn Post URL</label>
+                            <input type="url" id="post-url" class="form-control" required placeholder="https://linkedin.com/posts/...">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-linkedin" style="width: 100%;">Submit Today's Post</button>
+                    </form>
+                </div>
+
+                <!-- Admin View -->
+                <div id="admin-view" class="d-none">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <h3>All LinkedIn Submissions</h3>
+                        <input type="date" id="filter-date" class="form-control" style="width: auto;">
+                    </div>
+                    
+                    <div class="card table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Status</th>
+                                    <th>Post Link</th>
+                                    <th>Submitted Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-linkedin-tbody">
+                                <tr><td colspan="5" style="text-align: center;">Loading data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="auth.js"></script>
+    <script src="linkedin.js"></script>
+</body>
+</html>
