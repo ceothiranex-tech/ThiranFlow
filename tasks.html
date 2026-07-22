@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThiranFlow by Thirenex - Tasks</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .filter-bar { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--white); padding: 32px; border-radius: var(--card-radius); width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: fadeIn 0.3s ease-out; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+        .close-btn { cursor: pointer; font-size: 1.5rem; font-weight: bold; border: none; background: none; color: var(--text-muted); transition: color 0.2s; }
+        .close-btn:hover { color: var(--danger); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+        .form-group-full { grid-column: span 2; }
+        .priority-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .priority-high { background: var(--danger-light); color: var(--danger); }
+        .priority-medium { background: var(--warning-light); color: var(--warning); }
+        .priority-low { background: var(--info-light); color: var(--info); }
+    </style>
+    <link rel="icon" type="image/png" href="fav.png">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand" style="padding: 15px 0; text-align: center;"><img src="logo.png" alt="ThiranFlow Logo" style="max-width: 100%; max-height: 60px;"></div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="tasks.html" class="active">Tasks</a></li>
+                <li><a href="linkedin.html">Daily LinkedIn</a></li>
+                <li class="admin-only d-none"><a href="users.html">Team Members</a></li>
+                <li class="admin-only d-none"><a href="reports.html">Reports</a></li>
+                <li><a href="profile.html">My Profile</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div><span style="font-weight: 500; font-size: 1.1rem;">Task Management</span></div>
+                <div class="header-right">
+                    <div style="text-align: right; line-height: 1.2;">
+                        <strong id="header-user-name">Loading...</strong><br>
+                        <small id="header-user-role" class="text-muted"></small>
+                    </div>
+                    <button class="btn btn-secondary" id="logout-btn">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="filter-bar">
+                    <button class="btn btn-primary admin-only d-none" id="btn-create-task">Create Task</button>
+                    <select class="form-control" id="filter-status" style="width: 150px;">
+                        <option value="">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    <input type="text" id="search-task" class="form-control" placeholder="Search tasks..." style="width: 250px;">
+                </div>
+
+                <div class="card table-responsive">
+                    <table id="tasks-table">
+                        <thead>
+                            <tr>
+                                <th>Task ID</th>
+                                <th>Title</th>
+                                <th>Priority</th>
+                                <th>Deadline</th>
+                                <th>Assigned To</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasks-tbody">
+                            <tr><td colspan="7" style="text-align: center;">Loading tasks...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Task Modal (Admin Create/Edit, User View/Submit) -->
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Task Details</h3>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <form id="task-form">
+                <input type="hidden" id="task-id">
+                
+                <div class="form-grid">
+                    <div class="form-group form-group-full">
+                        <label>Title</label>
+                        <input type="text" id="task-title" class="form-control" placeholder="e.g. Design new landing page" required>
+                    </div>
+                    
+                    <div class="form-group form-group-full">
+                        <label>Description</label>
+                        <textarea id="task-desc" class="form-control" rows="4" placeholder="Detailed description of the task..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="task-priority" class="form-control" required>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Deadline</label>
+                        <input type="date" id="task-deadline" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group form-group-full admin-only-field d-none">
+                        <label>Assign To</label>
+                        <select id="task-assignee" class="form-control">
+                            <option value="">Unassigned</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- User Submit Fields -->
+                <div id="user-submit-fields" class="d-none" style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border-color);">
+                    <h4 style="margin-bottom: 15px; color: var(--primary-blue);">Submit Work</h4>
+                    <div class="form-grid">
+                        <div class="form-group form-group-full">
+                            <label>Completion Note</label>
+                            <textarea id="task-note" class="form-control" rows="2" placeholder="Describe what you completed..."></textarea>
+                        </div>
+                        <div class="form-group form-group-full">
+                            <label>Work Link / Attachment (URL)</label>
+                            <input type="url" id="task-link" class="form-control" placeholder="https://...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Review Fields -->
+                <div id="admin-review-fields" class="d-none" style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border-color);">
+                    <h4 style="margin-bottom: 15px; color: var(--primary-blue);">Review & Rating</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Rating</label>
+                            <div class="star-rating" id="star-rating-container" style="font-size: 1.5rem; color: #ccc; cursor: pointer; display: flex; gap: 5px; user-select: none;">
+                                <span data-value="1" class="star">&#9733;</span>
+                                <span data-value="2" class="star">&#9733;</span>
+                                <span data-value="3" class="star">&#9733;</span>
+                                <span data-value="4" class="star">&#9733;</span>
+                                <span data-value="5" class="star">&#9733;</span>
+                            </div>
+                            <input type="hidden" id="task-rating" value="0">
+                        </div>
+                        <div class="form-group form-group-full">
+                            <label>Feedback</label>
+                            <textarea id="task-feedback" class="form-control" rows="2" placeholder="Great job on..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: right; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn btn-secondary" id="btn-start-task" style="display:none;">Start Task</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('task-modal').style.display='none'">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-task">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="auth.js"></script>
+    <script src="tasks.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThiranFlow by Thirenex - Internal Task Management Portal</title>
+    <script>
+        // Check authentication state
+        const user = localStorage.getItem('teamflow_user');
+        if (user) {
+            window.location.replace('dashboard.html');
+        } else {
+            window.location.replace('login.html');
+        }
+    </script>
+    <link rel="icon" type="image/png" href="fav.png">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <p>Redirecting...</p>
+</body>
+</html>
